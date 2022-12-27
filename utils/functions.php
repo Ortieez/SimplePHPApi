@@ -1,64 +1,42 @@
 <?php
-if (filter_input(INPUT_GET, "operation") == "" || filter_input(INPUT_GET, "numbers") == "") {
-    echo "Please try urls: <br>";
-    echo "<a href='?operation=add&numbers=1,1'>?operation=add&numbers=1,1</a> <br><br>";
-    echo "<a href='?operation=sub&numbers=35,10,10'>?operation=sub&numbers=35,10,10</a> <br><br>";
-    echo "<a href='?operation=mul&numbers=35,10,10'>?operation=mul&numbers=35,10,10</a> <br><br>";
-    echo "<a href='?operation=div&numbers=35,10'>?operation=div&numbers=35,10</a> <br><br>";
-    echo "<a href='?operation=mod&numbers=35,10'>?operation=mod&numbers=35,10</a> <br><br>";
-    echo "<a href='?operation=sqrt&numbers=100'>?operation=sqrt&numbers=100</a> <br><br>";
+date_default_timezone_set('Europe/Prague');
 
-    die("Not enough parameters. Or wrong parameters entered <br>");
+$OPERATIONS = [
+    'add',
+    'sub',
+    'mul',
+    'div',
+    'mod',
+    'sqrt',
+];
+
+/**
+ * Function that takes input of raw output and encodes it to json and sends echo
+ * @param mixed $res
+ * @return void
+ */
+function echoJson($res) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($res);
 }
 
-$oper = filter_input(INPUT_GET, "operation");
-$nums = explode(',', filter_input(INPUT_GET, "numbers"));
-
-$res = [];
-
-header('Content-Type: application/json; charset=utf-8');
-switch ($oper) {
-    case 'add':
-        if (count($nums) <= 1) {
-            echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
-            die();
-        }
-        $res = add($nums);
-        break;
-    case 'sub':
-        if (count($nums) <= 1) {
-            echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
-            die();
-        }
-        $res = sub($nums);
-        break;
-    case 'mul':
-        if (count($nums) <= 1) {
-            echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
-            die();
-        }
-        $res = mul($nums);
-        break;
-    case 'div':
-        if (count($nums) <= 1) {
-            echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
-            die();
-        }
-        $res = div($nums);
-        break;
-    case 'mod':
-        if (count($nums) <= 1) {
-            echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
-            die();
-        }
-        $res = mod($nums);
-        break;
-    case 'sqrt':
-        $res = sqrtArr($nums);
-        break;
-    default:
+/**
+ * Check if input operation exists 
+ * @param string $oper
+ * @param array $operations
+ * @return bool
+ */
+function doesOperationsExist(string $oper, array $operations) {
+    $temp = in_array($oper, $operations, true);
+    
+    return $temp;
 }
 
+/**
+ * Addition function
+ * @param array $nums
+ * @return array|bool
+ */
 function add(array $nums)
 {
     $sum = 0;
@@ -72,6 +50,11 @@ function add(array $nums)
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Substitute function
+ * @param array $nums
+ * @return array|bool
+ */
 function sub(array $nums)
 {
     $sum = 0;
@@ -91,6 +74,11 @@ function sub(array $nums)
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Multiplication function
+ * @param array $nums
+ * @return array|bool
+ */
 function mul(array $nums) {
     $sum = 0;
     $tempRes = isNumberInArray($nums);
@@ -109,6 +97,11 @@ function mul(array $nums) {
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Division function
+ * @param array $nums
+ * @return array|bool
+ */
 function div(array $nums) {
     $sum = 0;
     $tempRes = isNumberInArray($nums);
@@ -131,6 +124,11 @@ function div(array $nums) {
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Modulus function
+ * @param array $nums
+ * @return array|bool
+ */
 function mod(array $nums) {
     $sum = 0;
     $tempRes = isNumberInArray($nums);
@@ -153,6 +151,11 @@ function mod(array $nums) {
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Custom square root function
+ * @param array $nums
+ * @return array|bool
+ */
 function sqrtArr(array $nums) {
     $sum = 0;
     $tempRes = isNumberInArray($nums);
@@ -176,6 +179,11 @@ function sqrtArr(array $nums) {
     return ["report" => "200 OK", "result" => $sum];
 }
 
+/**
+ * Checks every item in array and returns if everything is a number
+ * @param array $nums
+ * @return array<string>|bool
+ */
 function isNumberInArray(array $nums)
 {
     foreach ($nums as $num) {
@@ -187,7 +195,56 @@ function isNumberInArray(array $nums)
     return True;
 }
 
+/**
+ * Function that executes choosen function and returns raw response
+ * @param string $oper
+ * @param array $nums
+ * @return array|bool
+ */
+function chooseOperation(string $oper, array $nums) {
+    $res = [];
+    switch ($oper) {
+        case 'add':
+            if (count($nums) <= 1) {
+                echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
+                die();
+            }
+            $res = add($nums);
+            break;
+        case 'sub':
+            if (count($nums) <= 1) {
+                echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
+                die();
+            }
+            $res = sub($nums);
+            break;
+        case 'mul':
+            if (count($nums) <= 1) {
+                echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
+                die();
+            }
+            $res = mul($nums);
+            break;
+        case 'div':
+            if (count($nums) <= 1) {
+                echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
+                die();
+            }
+            $res = div($nums);
+            break;
+        case 'mod':
+            if (count($nums) <= 1) {
+                echo json_encode(["report" => "Not enough numbers", "statuscode"=> "418"]);
+                die();
+            }
+            $res = mod($nums);
+            break;
+        case 'sqrt':
+            $res = sqrtArr($nums);
+            break;
+        default:
+    }
 
-echo json_encode($res);
-
+    return $res;
+}
 ?>
